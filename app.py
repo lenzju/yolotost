@@ -1,20 +1,26 @@
 import streamlit as st
-import numpy as np
 from PIL import Image
 from ultralytics import YOLO
 
-st.title("Clothing Detection")
+st.title("Simple Object Detection")
 
-model = YOLO("yolov8n.pt")
+# Modell laden
+@st.cache_resource
+def load_model():
+    return YOLO("yolov8n.pt")
 
-file = st.file_uploader("Upload Image", type=["jpg","png","jpeg"])
+model = load_model()
+
+# Bild hochladen
+file = st.file_uploader("Upload Image", type=["jpg", "png", "jpeg"])
 
 if file:
     image = Image.open(file)
-    img = np.array(image)
 
-    results = model(img)
+    # YOLO kann direkt mit PIL arbeiten
+    results = model(image)
 
-    annotated = results[0].plot()
+    # Bild mit Bounding Boxen
+    result_image = results[0].plot()
 
-    st.image(annotated)
+    st.image(result_image, caption="Detected Objects", use_container_width=True)
